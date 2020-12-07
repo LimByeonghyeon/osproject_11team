@@ -114,7 +114,7 @@ int mymkdir(char *argv[])
 	else
 		perror("mkdir");//Display the error occurred while trying to create the directory. 
 
-	return 0;
+	return 1;
 }
 int mypwd()
 {
