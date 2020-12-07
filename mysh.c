@@ -104,7 +104,7 @@ int lsh_exit(char **args)
 int mymkdir(char *argv[])
 {
 
-	if(argv[0]!=2) //If the input is not of the form mkdir pathname, then display error message.
+	if(!strcmp(argv[0],"mkdir")) //If the input is not of the form mkdir pathname, then display error message.
 	{
 		printf("Invalid number of arguments\n");
 		return ;
