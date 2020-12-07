@@ -106,12 +106,11 @@ int mymkdir(char *argv[])
 
 	if(!strcmp(argv[0],"mkdir")) //If the input is not of the form mkdir pathname, then display error message.
 	{
-		printf("Invalid number of arguments\n");
-		return ;
-	}
-
-	if(!mkdir(argv[1],0775)) //Create a directory with the name specified in the argument.
+		if(!mkdir(argv[1],0775)) //Create a directory with the name specified in the argument.
 		printf("%s was created\n",argv[1]);
+// 		printf("Invalid number of arguments\n");
+// 		return ;
+	}
 	else
 		perror("mkdir");//Display the error occurred while trying to create the directory. 
 
