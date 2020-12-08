@@ -25,6 +25,7 @@ int lsh_cd(char **args);
 int lsh_help(char **args);
 int lsh_exit(char **args);
 int mymkdir(char *args[]);
+int myrm(char *args[]);
 // int myls(int argc, char *args[]);
 
 /*
@@ -34,7 +35,8 @@ char *builtin_str[] = {
   "cd",
   "help",
   "exit",
-	"mkdir"
+	"mkdir",
+	"rm"
 // 	"ls"
 };
 
@@ -42,7 +44,8 @@ int (*builtin_func[]) (char **) = {
   &lsh_cd,
   &lsh_help,
   &lsh_exit,
-	&mymkdir
+	&mymkdir,
+	&myrm
 // 	&myls
 };
 
@@ -132,56 +135,25 @@ int mypwd()
 	return 0;
 }
 
-/*int myls(char *argv){
-	DIR *pdir;
-	struct dirent *pde;
-	struct stat buf;
-	
-	int i=0;
-	int count = 0;
-	char *dir_name[255];
-	
-	memset(dir_name, '\0', sizeof(dir_name));
-	memset(&pde, '\0', sizeof(pde));
-	memset(&buf, '\0', sizeof(buf));
-	
-	if((pdir = opendir(argv)) < 0){
-		perror("opendir");
-		return 1;
-	}
-	
-	chdir(argv);
-	
-	printf("\n\n");
-	printf("### DIR -> %s ###\n", argv);
-	while((pde = readdir(pdir)) != NULL){
-		lstat(pde->d_name, &buf);
-		if(S_ISDIR(buf.st_mode) == 1){
-			if(!strcmp(pde->d_name,".") || !strcmp(pde->d_name, ".."))
-				;
-			else{
-				dir_name[count] = pde->d_name;
-				count = count + 1;
-			}
+int myrm(char *argv[])
+{
+	if(!strcmp(argv[0],"rm")) //If the input is not of the form rm filename1, then display error message.
+	{
+		if(!access(argv[1],F_OK))//Check for existence of the file.
+		{
+		if(unlink(argv[1]))//Unlink the file.
+		{
+			perror("unlink");//Displaying the error occurred while trying to unlink the file.
 		}
-		printf("%s\t", pde->d_name);
+		else
+		{
+		perror("access");//Display the error occurred while trying to access the file.
+		}
+// 		printf("Invalid number of arguments\n");
+// 		return ;
 	}
-	
-	for(i=0; i<count; i++){
-		ls(dir_name[i]);
-	}
-	printf("\n");
-	closedir(pdir);
-	chdir("..");
-	
-	if(argv < 2){
-		fprintf(stderr, "Usage : file_dir dirname.\n");
-		return 1;
-	}
-	ls(argv[1]);
-	return 0;
-	
-}*/
+	return 1;
+}
 
 
 int myls(char *argv[])
