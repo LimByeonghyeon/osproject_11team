@@ -1,6 +1,6 @@
 # Opensource project
-
+11team
+간단히 만든 myshell 입니다.
 
 # Participant
-1. LIM BYEONG HYEON
-2. HONG JI MIN
+임병현, 홍지민
