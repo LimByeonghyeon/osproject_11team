@@ -17,6 +17,7 @@
 #include <fcntl.h>
 #include <pwd.h>
 #include <grp.h>
+#include <utime.h>
 
 /*
   Function Declarations for builtin shell commands:
@@ -26,7 +27,7 @@ int lsh_help(char **args);
 int lsh_exit(char **args);
 int mymkdir(char *args[]);
 int myrm(char *args[]);
-int mytouch(char *argv[]);
+int mytouch(char *args[]);
 // int myls(int argc, char *args[]);
 
 /*
@@ -36,20 +37,20 @@ char *builtin_str[] = {
   "cd",
   "help",
   "exit",
-	"mkdir",
-	"rm",
-	"touch"
-// 	"ls"
+        "mkdir",
+        "rm",
+        "touch"
+//      "ls"
 };
 
 int (*builtin_func[]) (char **) = {
   &lsh_cd,
   &lsh_help,
   &lsh_exit,
-	&mymkdir,
-	&myrm,
-	&mytouch	
-// 	&myls
+        &mymkdir,
+        &myrm,
+        &mytouch
+//      &myls
 };
 
 int lsh_num_builtins() {
@@ -105,94 +106,83 @@ int lsh_help(char **args)
 int lsh_exit(char **args)
 {
   return 0;
-}	
+}
 
 int mymkdir(char *argv[])
 {
 
-	if(!strcmp(argv[0],"mkdir")) //If the input is not of the form mkdir pathname, then display error message.
-	{
-		if(!mkdir(argv[1],0775)) //Create a directory with the name specified in the argument.
-		printf("%s was created\n",argv[1]);
-// 		printf("Invalid number of arguments\n");
-// 		return ;
-	}
-	else
-		perror("mkdir");//Display the error occurred while trying to create the directory. 
+        if(!strcmp(argv[0],"mkdir")) //If the input is not of the form mkdir pathname, then display error message.
+        {
+                if(!mkdir(argv[1],0775)) //Create a directory with the name specified in the argument.
+                printf("%s was created\n",argv[1]);
+//              printf("Invalid number of arguments\n");
+//              return ;
+        }
+        else
+                perror("mkdir");//Display the error occurred while trying to create the directory.
 
-	return 1;
+        return 1;
 }
 int mypwd()
 {
-	char buffer[100];
-	
-	if(getcwd(buffer,sizeof(buffer)))//Get current working directory and store it in buffer.
-	{
-		printf("%s\n",buffer);
-	}
-	else
-	{
-		perror("getcwd");//Display the error occurred with getcwd.
-	}
-	
-	return 0;
-}
+        char buffer[100];
 
+        if(getcwd(buffer,sizeof(buffer)))//Get current working directory and store it in buffer.
+        {
+                printf("%s\n",buffer);
+        }
+        else
+        {
+                perror("getcwd");//Display the error occurred with getcwd.
+        }
+
+        return 1;
+}
 int myrm(char *argv[])
 {
-	if(!strcmp(argv[0],"rm")) //If the input is not of the form rm filename1, then display error message.
-	{
-		if(!access(argv[1],F_OK))//Check for existence of the file.
-		{
-			if(unlink(argv[1]))//Unlink the file.
-			{
-				perror("unlink");//Displaying the error occurred while trying to unlink the file.
-			}
-		}
-		else
-		{
-			perror("access");//Display the error occurred while trying to access the file.
-		}
-	}	
-// 		printf("Invalid number of arguments\n");
-// 		return ;
-	}
-	return 1;
-}
-int mytouch(int argc,char *argv[])
-{
-	int fd; //stores a pointer to an opened file.
-	int i;	//Loop variable.
-	
-	if(argc<2) //If the input is of the form touch, then display error message.
-	{
-		printf("Invalid Number Of Arguments\n");	
-		return ;
-	}
-	
-	
-	for(i=1;i<argc;i++) //Loop until all the arguments in argv are accessed.
-	{	
-		if(!access(argv[i],F_OK)) //Check if the file exists.
-		{
-			if( utime(argv[i],NULL)==0 ) //Change the modification and access times.
-				printf("Access and Modification time for %s was changed\n",argv[i]);
-			else
-				perror("utime"); //Displays the error occurred while changing the modification and access times.
-		}
-		
-		else
-		{	
-			fd=open(argv[i],O_CREAT|O_RDWR,0777); //If the file does not exist, then create the file.
-			if( fd > 0 ) // If the file argv[i] was opened.
-				printf("%s was created\n",argv[i]);
-			
-			else
-				perror("open"); //Displays the error occurred during creation of the file.
-		}
-	}
+        if(!strcmp(argv[0],"rm")) //If the input is not of the form rm filename1, then display error message.
+        {
+                if(!access(argv[1],F_OK))//Check for existence of the file.
+                {
+                        if(unlink(argv[1]))//Unlink the file.
+                        {
+                                perror("unlink");//Displaying the error occurred while trying to unlink the file.
+                        }
+                }
+                else
+                {
+                        perror("access");//Display the error occurred while trying to access the file.
+                }
 
-	return 0;
+
+
+        }
+        return 1;
+}
+int mytouch(char *argv[])
+{
+        int fd;
+        if(!strcmp(argv[0],"touch"))
+        {
+                if(!access(argv[1],F_OK)) //Check if the file exists.
+                {
+                        if( utime(argv[1],NULL)==0 ) //Change the modification and access times.
+                                printf("Access and Modification time for %s was changed\n",argv[1]);
+                        else
+                                perror("utime"); //Displays the error occurred while changing the modification and access times.
+                }
+
+                else
+                {
+                        fd=open(argv[1],O_CREAT|O_RDWR,0777); //If the file does not exist, then create the file.
+                        if( fd > 0 ) // If the file argv[i] was opened.
+                                printf("%s was created\n",argv[1]);
+
+                        else
+                                perror("open"); //Displays the error occurred during creation of the file.
+                }
+        }
+        return 1;
 }
 
 int myls(char *argv[])
@@ -203,143 +193,140 @@ int myls(char *argv[])
 	struct stat sb;
 	struct passwd *pwd;
 	struct group *grp;
-	if(!strcmp(argv[0], "ls"))
+	if(!strcmp(argv[1], "-l"))
 	{
-		if(!strcmp(argv[1], "-l"))
+		if(!access(argv[1],F_OK)) //Check if the directory specified by argv[i] exists.
 		{
-			if(!access(argv[1],F_OK)) //Check if the directory specified by argv[i] exists.
+			directory=opendir(argv[1]); //If it exists, then open the directory.
+			
+			if(directory!=NULL)
 			{
-				directory=opendir(argv[1]); //If it exists, then open the directory.
-
-				if(directory!=NULL)
+				while((file=readdir(directory))!=NULL) //Read each entry in the directory.
 				{
-					while((file=readdir(directory))!=NULL) //Read each entry in the directory.
+					if (stat(file->d_name, &sb) == -1) 
 					{
-						if (stat(file->d_name, &sb) == -1) 
-						{
-							perror("stat");
-						}
-						//Display the type of file.
-						switch (sb.st_mode & S_IFMT) 
-						{
-							case S_IFBLK:  printf("b");            
-								       break;
-							case S_IFCHR:  printf("c");        
-								       break;
-							case S_IFDIR:  printf("d");               
-								       break;
-							case S_IFIFO:  printf("p");               
-								       break;
-							case S_IFLNK:  printf("l");                 
-								       break;
-							case S_IFREG:  printf("-");            
-								       break;
-							case S_IFSOCK: printf("s");                  
-								       break;
-							default:       printf("u");                
-								       break;
-						}
-						//Display the permissions for user, group and others.
-						(sb.st_mode & S_IRUSR)? printf("r"):printf("-");
-						(sb.st_mode & S_IWUSR)? printf("w"):printf("-");
-						(sb.st_mode & S_IXUSR)? printf("x"):printf("-");
-						(sb.st_mode & S_IRGRP)? printf("r"):printf("-");
-						(sb.st_mode & S_IWGRP)? printf("w"):printf("-");
-						(sb.st_mode & S_IXGRP)? printf("x"):printf("-");
-						(sb.st_mode & S_IROTH)? printf("r"):printf("-");
-						(sb.st_mode & S_IWOTH)? printf("w"):printf("-");
-						(sb.st_mode & S_IXOTH)? printf("x"):printf("-");
-
-						printf("%3ld ", (long) sb.st_nlink);//Display the number of links.
-						grp = getgrgid(sb.st_gid);
-						pwd = getpwuid(sb.st_uid);
-						printf("%11s %11s ", pwd->pw_name,grp->gr_name);//Display the username and group name.
-						printf("%4lld ",(long long) sb.st_size);//Display the size of the file.
-						printf("%s ",file->d_name);//Display the file name.
-						printf("%s",ctime(&sb.st_atime)); //Display the last access time of the file.
+						perror("stat");
 					}
-				}
-			}	
-		}
-		else if(!strcmp(argv[1], "-li"))
-		{
-			if(!access(argv[1],F_OK)) //Check if the directory specified by argv[i] exists.
-			{
-				directory=opendir(argv[1]); //If it exists, then open the directory.
-
-				if(directory!=NULL)
-				{
-					while((file=readdir(directory))!=NULL) //Read each entry in the directory.
+					//Display the type of file.
+					switch (sb.st_mode & S_IFMT) 
 					{
-						if (lstat(file->d_name, &sb) == -1) 
-						{
-							perror("stat");
-						}
-
-						 printf("%6ld ", (long) sb.st_ino);
-						//Display the type of file.
-						switch (sb.st_mode & S_IFMT) 
-						{
-							case S_IFBLK:  printf("b");            
-								       break;
-							case S_IFCHR:  printf("c");        
-								       break;
-							case S_IFDIR:  printf("d");               
-								       break;
-							case S_IFIFO:  printf("p");               
-								       break;
-							case S_IFLNK:  printf("l");                 
-								       break;
-							case S_IFREG:  printf("-");            
-								       break;
-							case S_IFSOCK: printf("s");                  
-								       break;
-							default:       printf("u");                
-								       break;
-						}
-						//Display the permissions for user, group and others.
-						(sb.st_mode & S_IRUSR)? printf("r"):printf("-");
-						(sb.st_mode & S_IWUSR)? printf("w"):printf("-");
-						(sb.st_mode & S_IXUSR)? printf("x"):printf("-");
-						(sb.st_mode & S_IRGRP)? printf("r"):printf("-");
-						(sb.st_mode & S_IWGRP)? printf("w"):printf("-");
-						(sb.st_mode & S_IXGRP)? printf("x"):printf("-");
-						(sb.st_mode & S_IROTH)? printf("r"):printf("-");
-						(sb.st_mode & S_IWOTH)? printf("w"):printf("-");
-						(sb.st_mode & S_IXOTH)? printf("x"):printf("-");
-								printf("%3ld ", (long) sb.st_nlink);//Display the number of links.
-						grp = getgrgid(sb.st_gid);
-						pwd = getpwuid(sb.st_uid);
-						printf("%11s %11s ", pwd->pw_name,grp->gr_name);//Display the username and group name.
-						printf("%4lld ",(long long) sb.st_size);//Display the size of the file.
-						printf("%s ",file->d_name);//Display the file name.
-						printf("%s",ctime(&sb.st_atime)); //Display the last access time of the file.
+						case S_IFBLK:  printf("b");            
+							       break;
+						case S_IFCHR:  printf("c");        
+							       break;
+						case S_IFDIR:  printf("d");               
+							       break;
+						case S_IFIFO:  printf("p");               
+							       break;
+						case S_IFLNK:  printf("l");                 
+							       break;
+						case S_IFREG:  printf("-");            
+							       break;
+						case S_IFSOCK: printf("s");                  
+							       break;
+						default:       printf("u");                
+							       break;
 					}
-				}
-			}	
-		}
-		else
-		{
-			if(!access(argv[1],F_OK)) //Check if the directory specified by argv[i] exists.
-			{
-				directory=opendir(argv[1]); //If it exists, then open the directory.
+					//Display the permissions for user, group and others.
+					(sb.st_mode & S_IRUSR)? printf("r"):printf("-");
+					(sb.st_mode & S_IWUSR)? printf("w"):printf("-");
+					(sb.st_mode & S_IXUSR)? printf("x"):printf("-");
+					(sb.st_mode & S_IRGRP)? printf("r"):printf("-");
+					(sb.st_mode & S_IWGRP)? printf("w"):printf("-");
+					(sb.st_mode & S_IXGRP)? printf("x"):printf("-");
+					(sb.st_mode & S_IROTH)? printf("r"):printf("-");
+					(sb.st_mode & S_IWOTH)? printf("w"):printf("-");
+					(sb.st_mode & S_IXOTH)? printf("x"):printf("-");
 
-				if(directory!=NULL)
-				{
-					while((file=readdir(directory))!=NULL) //Read each entry in the directory.
-						printf("%-5s\t",file->d_name);
-					printf("\n");
+					printf("%3ld ", (long) sb.st_nlink);//Display the number of links.
+					grp = getgrgid(sb.st_gid);
+					pwd = getpwuid(sb.st_uid);
+					printf("%11s %11s ", pwd->pw_name,grp->gr_name);//Display the username and group name.
+					printf("%4lld ",(long long) sb.st_size);//Display the size of the file.
+					printf("%s ",file->d_name);//Display the file name.
+					printf("%s",ctime(&sb.st_atime)); //Display the last access time of the file.
 				}
-				else
-					perror("opendir"); //Display the error occurred while opening the directory.
+			}
+		}	
+	}
+	else if(!strcmp(argv[1], "-li"))
+	{
+		if(!access(argv[1],F_OK)) //Check if the directory specified by argv[i] exists.
+		{
+			directory=opendir(argv[1]); //If it exists, then open the directory.
+
+			if(directory!=NULL)
+			{
+				while((file=readdir(directory))!=NULL) //Read each entry in the directory.
+				{
+					if (lstat(file->d_name, &sb) == -1) 
+					{
+						perror("stat");
+					}
+		
+					 printf("%6ld ", (long) sb.st_ino);
+					//Display the type of file.
+					switch (sb.st_mode & S_IFMT) 
+					{
+						case S_IFBLK:  printf("b");            
+							       break;
+						case S_IFCHR:  printf("c");        
+							       break;
+						case S_IFDIR:  printf("d");               
+							       break;
+						case S_IFIFO:  printf("p");               
+							       break;
+						case S_IFLNK:  printf("l");                 
+							       break;
+						case S_IFREG:  printf("-");            
+							       break;
+						case S_IFSOCK: printf("s");                  
+							       break;
+						default:       printf("u");                
+							       break;
+					}
+					//Display the permissions for user, group and others.
+					(sb.st_mode & S_IRUSR)? printf("r"):printf("-");
+					(sb.st_mode & S_IWUSR)? printf("w"):printf("-");
+					(sb.st_mode & S_IXUSR)? printf("x"):printf("-");
+					(sb.st_mode & S_IRGRP)? printf("r"):printf("-");
+					(sb.st_mode & S_IWGRP)? printf("w"):printf("-");
+					(sb.st_mode & S_IXGRP)? printf("x"):printf("-");
+					(sb.st_mode & S_IROTH)? printf("r"):printf("-");
+					(sb.st_mode & S_IWOTH)? printf("w"):printf("-");
+					(sb.st_mode & S_IXOTH)? printf("x"):printf("-");
+							printf("%3ld ", (long) sb.st_nlink);//Display the number of links.
+					grp = getgrgid(sb.st_gid);
+					pwd = getpwuid(sb.st_uid);
+					printf("%11s %11s ", pwd->pw_name,grp->gr_name);//Display the username and group name.
+					printf("%4lld ",(long long) sb.st_size);//Display the size of the file.
+					printf("%s ",file->d_name);//Display the file name.
+					printf("%s",ctime(&sb.st_atime)); //Display the last access time of the file.
+				}
+			}
+		}	
+	}
+	else
+	{
+		if(!access(argv[1],F_OK)) //Check if the directory specified by argv[i] exists.
+		{
+			directory=opendir(argv[1]); //If it exists, then open the directory.
+
+			if(directory!=NULL)
+			{
+				while((file=readdir(directory))!=NULL) //Read each entry in the directory.
+					printf("%-5s\t",file->d_name);
+				printf("\n");
 			}
 			else
-				perror("access"); //Display an error if the directory does not exists.
+				perror("opendir"); //Display the error occurred while opening the directory.
 		}
-	}
-	return 1;
+		else
+			perror("access"); //Display an error if the directory does not exists.
+	}	
+	return 0;
 }
-	
+
 /**
   @brief Launch a program and wait for it to terminate.
   @param args Null terminated list of arguments (including program).
@@ -478,7 +465,7 @@ char **lsh_split_line(char *line)
       tokens_backup = tokens;
       tokens = realloc(tokens, bufsize * sizeof(char*));
       if (!tokens) {
-		free(tokens_backup);
+                free(tokens_backup);
         fprintf(stderr, "lsh: allocation error\n");
         exit(EXIT_FAILURE);
       }
