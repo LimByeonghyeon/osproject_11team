@@ -141,14 +141,16 @@ int myrm(char *argv[])
 	{
 		if(!access(argv[1],F_OK))//Check for existence of the file.
 		{
-		if(unlink(argv[1]))//Unlink the file.
-		{
-			perror("unlink");//Displaying the error occurred while trying to unlink the file.
+			if(unlink(argv[1]))//Unlink the file.
+			{
+				perror("unlink");//Displaying the error occurred while trying to unlink the file.
+			}
 		}
 		else
 		{
-		perror("access");//Display the error occurred while trying to access the file.
+			perror("access");//Display the error occurred while trying to access the file.
 		}
+	}	
 // 		printf("Invalid number of arguments\n");
 // 		return ;
 	}
