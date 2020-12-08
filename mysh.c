@@ -111,47 +111,32 @@ int lsh_exit(char **args)
 int mymkdir(char *argv[])
 {
 
-        if(!strcmp(argv[0],"mkdir")) //If the input is not of the form mkdir pathname, then display error message.
+        if(!strcmp(argv[0],"mkdir")) 
         {
-                if(!mkdir(argv[1],0775)) //Create a directory with the name specified in the argument.
+                if(!mkdir(argv[1],0775)) 
                 printf("%s was created\n",argv[1]);
-//              printf("Invalid number of arguments\n");
-//              return ;
+		return ;
         }
         else
-                perror("mkdir");//Display the error occurred while trying to create the directory.
+                perror("mkdir");
 
         return 1;
 }
-int mypwd()
-{
-        char buffer[100];
 
-        if(getcwd(buffer,sizeof(buffer)))//Get current working directory and store it in buffer.
-        {
-                printf("%s\n",buffer);
-        }
-        else
-        {
-                perror("getcwd");//Display the error occurred with getcwd.
-        }
-
-        return 1;
-}
 int myrm(char *argv[])
 {
-        if(!strcmp(argv[0],"rm")) //If the input is not of the form rm filename1, then display error message.
+        if(!strcmp(argv[0],"rm"))
         {
-                if(!access(argv[1],F_OK))//Check for existence of the file.
+                if(!access(argv[1],F_OK))
                 {
-                        if(unlink(argv[1]))//Unlink the file.
+                        if(unlink(argv[1]))
                         {
-                                perror("unlink");//Displaying the error occurred while trying to unlink the file.
+                                perror("unlink");
                         }
                 }
                 else
                 {
-                        perror("access");//Display the error occurred while trying to access the file.
+                        perror("access");
                 }
 
 
@@ -164,22 +149,22 @@ int mytouch(char *argv[])
         int fd;
         if(!strcmp(argv[0],"touch"))
         {
-                if(!access(argv[1],F_OK)) //Check if the file exists.
+                if(!access(argv[1],F_OK))
                 {
-                        if( utime(argv[1],NULL)==0 ) //Change the modification and access times.
+                        if( utime(argv[1],NULL)==0 )
                                 printf("Access and Modification time for %s was changed\n",argv[1]);
                         else
-                                perror("utime"); //Displays the error occurred while changing the modification and access times.
+                                perror("utime");
                 }
 
                 else
                 {
-                        fd=open(argv[1],O_CREAT|O_RDWR,0777); //If the file does not exist, then create the file.
-                        if( fd > 0 ) // If the file argv[i] was opened.
+                        fd=open(argv[1],O_CREAT|O_RDWR,0777);
+                        if( fd > 0 )
                                 printf("%s was created\n",argv[1]);
 
                         else
-                                perror("open"); //Displays the error occurred during creation of the file.
+                                perror("open");
                 }
         }
         return 1;
